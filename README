@@ -1,1 +1,6 @@
 Hello World!
+<<<<<<< HEAD
+### Branch Feature - Added on conflict branch
+=======
+### Master Branch Update - Conflicting Line
+>>>>>>> master
