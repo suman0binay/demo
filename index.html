@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>সেবা হেলথ - ডাক্তার বুকিং ও লাইভ সিরিয়াল</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#f3f6f9;
+  font-family:Arial,"Noto Sans Bengali",sans-serif;
+  color:#17202a
+}
+
+.app{
+  max-width:720px;
+  min-height:100vh;
+  margin:auto;
+  background:#fff;
+  box-shadow:0 0 20px #0001
+}
+
+.header{
+  background:#17638e;
+  color:#fff;
+  text-align:center;
+  padding:22px 12px;
+  font-size:25px;
+  font-weight:800
+}
+
+.sub{
+  font-size:16px;
+  margin-top:5px;
+  font-weight:500
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:18px
+}
+
+.tab{
+  padding:20px 5px;
+  border:2px solid #dbe4ea;
+  border-radius:17px;
+  background:#f8fbfd;
+  font-size:18px;
+  font-weight:800;
+  cursor:pointer
+}
+
+.tab.active{
+  border-color:#2674a6;
+  background:#eef7fc
+}
+
+.live{
+  display:block;
+  color:#e33;
+  font-size:14px;
+  margin-top:7px
+}
+
+.content{
+  padding:0 18px 30px
+}
+
+.scan{
+  width:100%;
+  padding:15px;
+  border:2px dashed #65a9d0;
+  border-radius:15px;
+  background:#f2fbff;
+  color:#17638e;
+  font-size:18px;
+  font-weight:800;
+  margin:5px 0 10px;
+  cursor:pointer
+}
+
+label{
+  display:block;
+  color:#17638e;
+  font-size:20px;
+  font-weight:800;
+  border-left:5px solid #17638e;
+  padding-left:11px;
+  margin:20px 0 8px
+}
+
+select,input{
+  width:100%;
+  padding:16px;
+  border:1px solid #d4dce2;
+  border-radius:15px;
+  background:#fff;
+  font-size:17px;
+  outline:none
+}
+
+select:focus,input:focus{
+  border-color:#176a99
+}
+
+.info{
+  margin-top:10px;
+  padding:14px;
+  background:#eef8f1;
+  border:1px solid #b7dfc2;
+  border-radius:14px;
+  line-height:1.7
+}
+
+.hidden{
+  display:none!important
+}
+
+.payment{
+  margin-top:23px;
+  padding:19px;
+  border:1px solid #e7b5c8;
+  border-radius:20px;
+  background:#fff0f5
+}
+
+.payment h3{
+  margin:0;
+  color:#c32961;
+  font-size:21px
+}
+
+.payment p{
+  margin:8px 0 13px
+}
+
+.bkash{
+  display:flex;
+  align-items:center;
+  border:1px dashed #c28ba1;
+  border-radius:13px;
+  padding:8px 8px 8px 14px;
+  background:#fff
+}
+
+.bkash strong{
+  flex:1;
+  font-size:18px
+}
+
+.bkash button{
+  border:0;
+  background:#cf2a69;
+  color:#fff;
+  border-radius:10px;
+  padding:12px 17px;
+  font-weight:bold;
+  cursor:pointer
+}
+
+.payment input{
+  margin-top:11px
+}
+
+.primary{
+  width:100%;
+  border:0;
+  background:#176a99;
+  color:#fff;
+  border-radius:15px;
+  padding:18px;
+  font-size:22px;
+  font-weight:800;
+  margin-top:25px;
+  cursor:pointer
+}
+
+.primary:disabled{
+  opacity:.6
+}
+
+.msg{
+  text-align:center;
+  font-weight:bold;
+  min-height:25px;
+  margin-top:12px
+}
+
+.queueHead{
+  text-align:center;
+  background:#e9f7ff;
+  border:1px solid #c8e3f2;
+  border-radius:16px;
+  padding:17px;
+  color:#17638e
+}
+
+.queueHead h2{
+  margin:0 0 5px
+}
+
+.queueFilter{
+  margin-top:14px;
+  padding:14px;
+  background:#f8fbfd;
+  border:1px solid #dbe4ea;
+  border-radius:15px
+}
+
+.queueFilter label{
+  font-size:16px;
+  margin:0 0 8px;
+  border:0;
+  padding:0
+}
+
+.card{
+  border:1px solid #e1e6ea;
+  border-radius:18px;
+  padding:17px;
+  margin-top:14px;
+  box-shadow:0 2px 8px #0001;
+  background:#fff
+}
+
+.serial{
+  font-size:24px;
+  color:#17638e;
+  font-weight:800
+}
+
+.card p{
+  font-size:17px;
+  margin:7px 0
+}
+
+.status{
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:20px;
+  background:#e8f7ed;
+  color:#19713a;
+  font-weight:bold;
+  margin-top:7px
+}
+
+.empty{
+  text-align:center;
+  padding:25px 10px;
+  color:#777
+}
+
+.errorBox{
+  margin-top:14px;
+  padding:15px;
+  background:#fff0f0;
+  border:1px solid #e2aaaa;
+  border-radius:14px;
+  color:#b40000;
+  line-height:1.6;
+  word-break:break-word
+}
+
+.successBox{
+  margin-top:14px;
+  padding:15px;
+  background:#eef8f1;
+  border:1px solid #b7dfc2;
+  border-radius:14px;
+  color:#19713a;
+  line-height:1.7
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:#0008;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:999
+}
+
+.modalBox{
+  background:#fff;
+  width:min(500px,100%);
+  border-radius:20px;
+  padding:22px;
+  position:relative
+}
+
+.close{
+  position:absolute;
+  right:12px;
+  top:5px;
+  border:0;
+  background:none;
+  font-size:32px;
+  cursor:pointer
+}
+
+.loading{
+  text-align:center;
+  padding:20px;
+  color:#17638e;
+  font-weight:bold
+}
+
+.small{
+  font-size:14px;
+  color:#777;
+  margin-top:8px
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="cordova.js"></script>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+  সেবা হেলথ - ডাক্তার বুকিং প্যানেল
+
+  <div class="sub">
+    ডাক্তার বুকিং এবং লাইভ সিরিয়াল ট্র্যাকিং
+  </div>
+</header>
+
+<div class="tabs">
+
+<button id="tabBook" class="tab active">
+  🔵<br>
+  ডাক্তার চেম্বার
+</button>
+
+<button id="tabQueue" class="tab">
+  🟢<br>
+  লাইভ সিরিয়াল তালিকা
+  <span class="live">• LIVE</span>
+</button>
+
+</div>
+
+
+<!-- ================= BOOKING ================= -->
+
+<section id="booking" class="content">
+
+<button class="scan" id="scan">
+  📷 প্রেসক্রিপশন স্ক্যান করুন
+</button>
+
+<label>
+  রোগের বিভাগ বা স্পেশালিটি নির্বাচন করুন
+</label>
+
+<select id="specialty">
+  <option value="all">সব রোগের ডাক্তার (All)</option>
+</select>
+
+<label>
+  ডাক্তার নির্বাচন করুন
+</label>
+
+<select id="doctor">
+  <option value="">-- ডাক্তার বাছাই করুন --</option>
+</select>
+
+<div id="info" class="info hidden"></div>
+
+<label>
+  রোগীর নাম
+</label>
+
+<input
+  id="patient"
+  type="text"
+  placeholder="রোগীর নাম লিখুন"
+>
+
+<label>
+  মোবাইল নম্বর
+</label>
+
+<input
+  id="phone"
+  type="tel"
+  inputmode="numeric"
+  maxlength="11"
+  placeholder="০১XXXXXXXXX"
+>
+
+<label>
+  ভিজিট ফি (৳)
+</label>
+
+<input
+  id="fee"
+  type="text"
+  placeholder="ডাক্তার নির্বাচন করুন"
+  readonly
+>
+
+
+<div class="payment">
+
+<h3>bKash পেমেন্ট প্যানেল</h3>
+
+<p>
+  বুকিং ফি নিচের নম্বরে Send Money করে তথ্য দিন:
+</p>
+
+<div class="bkash">
+
+<strong id="bk">01308259836</strong>
+
+<button id="copy">
+  কপি
+</button>
+
+</div>
+
+<input
+  id="sender"
+  type="tel"
+  inputmode="numeric"
+  maxlength="11"
+  placeholder="যে নম্বর থেকে টাকা পাঠিয়েছেন"
+>
+
+<input
+  id="trx"
+  type="text"
+  placeholder="Transaction ID (TrxID)"
+>
+
+</div>
+
+
+<button id="book" class="primary">
+  সিরিয়াল বুকিং করুন
+</button>
+
+<div id="msg" class="msg"></div>
+
+</section>
+
+
+<!-- ================= LIVE QUEUE ================= -->
+
+<section id="queueSection" class="content hidden">
+
+<div class="queueHead">
+
+<h2>
+  লাইভ সিরিয়াল তালিকা
+</h2>
+
+মোট বুকিং:
+<b id="total">0</b>
+
+<div class="small">
+  নতুন বুকিং হলে তালিকা স্বয়ংক্রিয়ভাবে আপডেট হবে
+</div>
+
+</div>
+
+
+<div class="queueFilter">
+
+<label for="queueDoctor">
+  ডাক্তার অনুযায়ী সিরিয়াল দেখুন
+</label>
+
+<select id="queueDoctor">
+
+<option value="all">
+  সব ডাক্তার
+</option>
+
+</select>
+
+</div>
+
+
+<div id="queue">
+
+<div class="loading">
+  সিরিয়াল লোড হচ্ছে...
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<!-- ================= SCANNER ================= -->
+
+<div id="modal" class="modal hidden">
+
+<div class="modalBox">
+
+<button id="close" class="close">
+  ×
+</button>
+
+<h2>
+  📷 প্রেসক্রিপশন স্ক্যান
+</h2>
+
+<p>
+  ছবি নির্বাচন করুন। পরে এখানে AI/OCR সংযোগ করা যাবে।
+</p>
+
+<input
+  type="file"
+  accept="image/*"
+  id="file"
+>
+
+<p id="scanMsg"></p>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   SUPABASE CONFIG
+===================================================== */
+
+const SUPABASE_URL =
+"https://egkyxvdjnebkpwwzfizx.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_9Hibc38tGx5co0XNqJpa2w_FIhIuBtj";
+
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+const $ = id =>
+document.getElementById(id);
+
+
+function safe(value){
+
+return String(value ?? "")
+.replace(
+  /[&<>"']/g,
+  function(m){
+
+    return {
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[m];
+
+  }
+);
+
+}
+
+
+function message(
+text,
+color="#c22"
+){
+
+$("msg").textContent=text;
+$("msg").style.color=color;
+
+}
+
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+let doctors=[];
+let appointments=[];
+
+
+/* =====================================================
+   START
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+async function(){
+
+await loadDoctors();
+
+await loadAppointments();
+
+setupRealtime();
+
+}
+);
+
+
+/* =====================================================
+   LOAD DOCTORS
+===================================================== */
+
+async function loadDoctors(){
+
+$("doctor").innerHTML=
+'<option value="">ডাক্তার লোড হচ্ছে...</option>';
+
+try{
+
+const {data,error}=
+await supabaseClient
+.from("doctors")
+.select("*")
+.order("name",{ascending:true});
+
+
+if(error)
+throw error;
+
+
+doctors=data || [];
+
+
+/* SPECIALITY */
+
+$("specialty").innerHTML=
+'<option value="all">সব রোগের ডাক্তার (All)</option>';
+
+
+const specialties=
+[
+...new Set(
+doctors
+.map(d=>d.specialization)
+.filter(Boolean)
+)
+];
+
+
+specialties.forEach(function(sp){
+
+const option=
+document.createElement("option");
+
+option.value=sp;
+option.textContent=sp;
+
+$("specialty")
+.appendChild(option);
+
+});
+
+
+renderDoctorSelect();
+
+renderQueueDoctorSelect();
+
+
+}catch(error){
+
+console.error(error);
+
+$("doctor").innerHTML=
+'<option value="">ডাক্তার পাওয়া যায়নি</option>';
+
+message(
+"ডাক্তার লোড করা যাচ্ছে না: "+
+error.message,
+"#c22"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   DOCTOR SELECT
+===================================================== */
+
+function renderDoctorSelect(){
+
+const selected=
+$("specialty").value;
+
+
+$("doctor").innerHTML=
+'<option value="">-- ডাক্তার বাছাই করুন --</option>';
+
+
+doctors
+.filter(function(d){
+
+return(
+selected==="all" ||
+String(d.specialization)===
+String(selected)
+);
+
+})
+.forEach(function(d){
+
+const option=
+document.createElement("option");
+
+option.value=d.id;
+
+option.textContent=
+(d.name || "নাম নেই")+
+" — "+
+(d.qualification || "")+
+" — ফি: ৳"+
+(d.fee ?? 0);
+
+$("doctor")
+.appendChild(option);
+
+});
+
+
+$("fee").value="";
+
+$("info")
+.classList
+.add("hidden");
+
+}
+
+
+/* =====================================================
+   SPECIALITY CHANGE
+===================================================== */
+
+$("specialty").addEventListener(
+"change",
+function(){
+
+renderDoctorSelect();
+
+}
+);
+
+
+/* =====================================================
+   DOCTOR CHANGE
+===================================================== */
+
+$("doctor").addEventListener(
+"change",
+function(){
+
+const id=
+$("doctor").value;
+
+
+const doctor=
+doctors.find(function(d){
+
+return String(d.id)===
+String(id);
+
+});
+
+
+if(!doctor){
+
+$("fee").value="";
+
+$("info")
+.classList
+.add("hidden");
+
+return;
+
+}
+
+
+$("fee").value=
+doctor.fee ?? "";
+
+
+$("info")
+.classList
+.remove("hidden");
+
+
+$("info").innerHTML=
+
+"<b>"+
+safe(doctor.name)+
+"</b><br>"+
+
+"স্পেশালিটি: "+
+safe(doctor.specialization)+
+"<br>"+
+
+"যোগ্যতা: "+
+safe(doctor.qualification)+
+"<br>"+
+
+"অভিজ্ঞতা: "+
+safe(doctor.experience)+
+" বছর<br>"+
+
+"ভিজিট ফি: ৳"+
+safe(doctor.fee)+
+"<br>"+
+
+"চেম্বার দিন: "+
+safe(doctor.available_days)+
+"<br>"+
+
+"সময়: "+
+safe(doctor.available_time);
+
+}
+);
+
+
+/* =====================================================
+   QUEUE DOCTOR FILTER
+===================================================== */
+
+function renderQueueDoctorSelect(){
+
+$("queueDoctor").innerHTML=
+'<option value="all">সব ডাক্তার</option>';
+
+
+doctors.forEach(function(d){
+
+const option=
+document.createElement("option");
+
+option.value=d.id;
+
+option.textContent=
+d.name || "নাম নেই";
+
+$("queueDoctor")
+.appendChild(option);
+
+});
+
+}
+
+
+$("queueDoctor").addEventListener(
+"change",
+function(){
+
+renderQueue();
+
+}
+);
+
+
+/* =====================================================
+   LOAD APPOINTMENTS
+===================================================== */
+
+async function loadAppointments(){
+
+$("queue").innerHTML=
+'<div class="loading">লাইভ সিরিয়াল লোড হচ্ছে...</div>';
+
+try{
+
+/*
+ appointments টেবিল থেকে ডাটা
+*/
+
+const {data,error}=
+await supabaseClient
+.from("appointments")
+.select(`
+  id,
+  patient_id,
+  doctor_id,
+  appointment_date,
+  appointment_time,
+  status,
+  reason,
+  created_at
+`)
+.order(
+"created_at",
+{ascending:true}
+);
+
+
+if(error)
+throw error;
+
+
+appointments=data || [];
+
+
+/*
+ ডাক্তারদের নাম যোগ করা
+*/
+
+appointments=
+appointments.map(function(a){
+
+const doctor=
+doctors.find(function(d){
+
+return String(d.id)===
+String(a.doctor_id);
+
+});
+
+
+return{
+
+...a,
+
+doctor_name:
+doctor?.name || "ডাক্তার নেই",
+
+specialization:
+doctor?.specialization || "",
+
+fee:
+doctor?.fee ?? 0
+
+};
+
+});
+
+
+renderQueue();
+
+
+}catch(error){
+
+console.error(
+"Appointments error:",
+error
+);
+
+
+appointments=[];
+
+$("total").textContent="0";
+
+
+$("queue").innerHTML=
+
+'<div class="errorBox">'+
+
+"<b>লাইভ সিরিয়াল লোড করা যাচ্ছে না।</b><br><br>"+
+
+"<b>Supabase Error:</b><br>"+
+
+safe(error.message)+
+
+"<br><br>"+
+
+"appointments টেবিল এবং RLS/SELECT permission পরীক্ষা করুন।"+
+
+"</div>";
+
+}
+
+}
+
+
+/* =====================================================
+   RENDER QUEUE
+===================================================== */
+
+function renderQueue(){
+
+const selected=
+$("queueDoctor").value;
+
+
+let list=
+[...appointments];
+
+
+if(
+selected &&
+selected!=="all"
+){
+
+list=
+list.filter(function(a){
+
+return String(a.doctor_id)===
+String(selected);
+
+});
+
+}
+
+
+/*
+ নতুন বুকিং আগে
+*/
+
+list.sort(function(a,b){
+
+return new Date(a.created_at) -
+new Date(b.created_at);
+
+});
+
+
+$("total").textContent=
+list.length;
+
+
+if(!list.length){
+
+$("queue").innerHTML=
+
+'<div class="card empty">'+
+
+"এখনো কোনো সিরিয়াল বুক হয়নি।"+
+
+"</div>";
+
+return;
+
+}
+
+
+$("queue").innerHTML=
+
+list.map(function(a,index){
+
+const serial=
+index+1;
+
+
+let patientName=
+"রোগী";
+
+
+/*
+ patients টেবিল থেকে patient_id
+ থাকলে পরে নামও আনা যাবে।
+*/
+
+const date=
+a.appointment_date || "";
+
+const time=
+a.appointment_time || "";
+
+
+return `
+
+<div class="card">
+
+<div class="serial">
+সিরিয়াল #${serial}
+</div>
+
+<p>
+<b>ডাক্তার:</b>
+${safe(a.doctor_name)}
+</p>
+
+<p>
+<b>স্পেশালিটি:</b>
+${safe(a.specialization)}
+</p>
+
+<p>
+<b>তারিখ:</b>
+${safe(date)}
+</p>
+
+<p>
+<b>সময়:</b>
+${safe(time)}
+</p>
+
+<p>
+<b>ফি:</b>
+৳${safe(a.fee)}
+</p>
+
+<span class="status">
+${safe(a.status || "Pending")}
+</span>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* =====================================================
+   BOOK APPOINTMENT
+===================================================== */
+
+$("book").addEventListener(
+"click",
+async function(){
+
+const doctor=
+doctors.find(function(d){
+
+return String(d.id)===
+String($("doctor").value);
+
+});
+
+
+const patientName=
+$("patient")
+.value
+.trim();
+
+
+const phone=
+$("phone")
+.value
+.trim();
+
+
+const sender=
+$("sender")
+.value
+.trim();
+
+
+const trx=
+$("trx")
+.value
+.trim();
+
+
+/* VALIDATION */
+
+if(!doctor){
+
+message(
+"প্রথমে ডাক্তার নির্বাচন করুন।"
+);
+
+return;
+
+}
+
+
+if(!patientName){
+
+message(
+"রোগীর নাম লিখুন।"
+);
+
+return;
+
+}
+
+
+if(
+!/^01\d{9}$/.test(phone)
+){
+
+message(
+"সঠিক ১১ সংখ্যার রোগীর মোবাইল নম্বর দিন।"
+);
+
+return;
+
+}
+
+
+if(
+!/^01\d{9}$/.test(sender)
+){
+
+message(
+"সঠিক ১১ সংখ্যার bKash নম্বর দিন।"
+);
+
+return;
+
+}
+
+
+if(!trx){
+
+message(
+"Transaction ID দিন।"
+);
+
+return;
+
+}
+
+
+$("book").disabled=true;
+
+$("book").textContent=
+"বুকিং হচ্ছে...";
+
+
+try{
+
+/* =================================================
+   FIND / CREATE PATIENT
+================================================= */
+
+let patientId=null;
+
+
+/*
+ আগে ফোন নম্বর দিয়ে রোগী খোঁজা
+*/
+
+const patientResult=
+await supabaseClient
+.from("patients")
+.select("id")
+.eq("phone",phone)
+.limit(1);
+
+
+if(patientResult.error)
+throw patientResult.error;
+
+
+if(
+patientResult.data &&
+patientResult.data.length
+){
+
+patientId=
+patientResult.data[0].id;
+
+}else{
+
+/*
+ নতুন রোগী তৈরি
+*/
+
+const newPatient=
+await supabaseClient
+.from("patients")
+.insert([{
+
+name:patientName,
+
+phone:phone
+
+}])
+.select("id")
+.single();
+
+
+if(newPatient.error)
+throw newPatient.error;
+
+
+patientId=
+newPatient.data.id;
+
+}
+
+
+/* =================================================
+   TRANSACTION CHECK
+================================================= */
+
+/*
+ appointments টেবিলে trx কলাম নেই।
+ তাই এখানে trx সংরক্ষণ করা যাচ্ছে না।
+
+ এজন্য এখন appointment তৈরি করা হবে।
+*/
+
+
+/* =================================================
+   CREATE APPOINTMENT
+================================================= */
+
+const today=
+new Date();
+
+
+const appointmentDate=
+today
+.toISOString()
+.split("T")[0];
+
+
+const appointmentTime=
+today
+.toTimeString()
+.split(" ")[0];
+
+
+const appointmentData={
+
+patient_id:patientId,
+
+doctor_id:doctor.id,
+
+appointment_date:
+appointmentDate,
+
+appointment_time:
+appointmentTime,
+
+status:"Confirmed",
+
+reason:
+"bKash TrxID: "+trx
+
+};
+
+
+const appointmentResult=
+await supabaseClient
+.from("appointments")
+.insert([appointmentData])
+.select()
+.single();
+
+
+if(appointmentResult.error)
+throw appointmentResult.error;
+
+
+/* SUCCESS */
+
+message(
+"সফল! আপনার অ্যাপয়েন্টমেন্ট তৈরি হয়েছে।",
+"#18733a"
+);
+
+
+/* CLEAR */
+
+$("patient").value="";
+
+$("phone").value="";
+
+$("sender").value="";
+
+$("trx").value="";
+
+
+/* RELOAD */
+
+await loadAppointments();
+
+
+/* QUEUE */
+
+showQueue();
+
+
+}catch(error){
+
+console.error(
+"BOOKING ERROR:",
+error
+);
+
+message(
+"বুকিং করা যায়নি: "+
+error.message,
+"#c22"
+);
+
+}
+
+
+$("book").disabled=false;
+
+$("book").textContent=
+"সিরিয়াল বুকিং করুন";
+
+}
+);
+
+
+/* =====================================================
+   SHOW BOOK
+===================================================== */
+
+function showBook(){
+
+$("booking")
+.classList
+.remove("hidden");
+
+$("queueSection")
+.classList
+.add("hidden");
+
+$("tabBook")
+.classList
+.add("active");
+
+$("tabQueue")
+.classList
+.remove("active");
+
+}
+
+
+/* =====================================================
+   SHOW QUEUE
+===================================================== */
+
+async function showQueue(){
+
+$("booking")
+.classList
+.add("hidden");
+
+$("queueSection")
+.classList
+.remove("hidden");
+
+$("tabQueue")
+.classList
+.add("active");
+
+$("tabBook")
+.classList
+.remove("active");
+
+await loadAppointments();
+
+}
+
+
+$("tabBook").addEventListener(
+"click",
+showBook
+);
+
+
+$("tabQueue").addEventListener(
+"click",
+showQueue
+);
+
+
+/* =====================================================
+   REALTIME
+===================================================== */
+
+function setupRealtime(){
+
+supabaseClient
+.channel("appointments-live")
+.on(
+"postgres_changes",
+{
+event:"*",
+schema:"public",
+table:"appointments"
+},
+function(payload){
+
+console.log(
+"Realtime:",
+payload
+);
+
+loadAppointments();
+
+}
+)
+.subscribe(function(status){
+
+console.log(
+"Realtime status:",
+status
+);
+
+});
+
+}
+
+
+/* =====================================================
+   COPY BKASH
+===================================================== */
+
+$("copy").addEventListener(
+"click",
+async function(){
+
+const number=
+$("bk")
+.textContent
+.trim();
+
+
+try{
+
+await navigator.clipboard
+.writeText(number);
+
+}catch(e){
+
+const temp=
+document.createElement(
+"textarea"
+);
+
+temp.value=number;
+
+document.body
+.appendChild(temp);
+
+temp.select();
+
+document.execCommand("copy");
+
+temp.remove();
+
+}
+
+
+$("copy").textContent=
+"কপি হয়েছে";
+
+
+setTimeout(function(){
+
+$("copy").textContent=
+"কপি";
+
+},1200);
+
+}
+);
+
+
+/* =====================================================
+   SCANNER
+===================================================== */
+
+$("scan").addEventListener(
+"click",
+function(){
+
+$("modal")
+.classList
+.remove("hidden");
+
+}
+);
+
+
+$("close").addEventListener(
+"click",
+function(){
+
+$("modal")
+.classList
+.add("hidden");
+
+}
+);
+
+
+$("modal").addEventListener(
+"click",
+function(e){
+
+if(e.target===$("modal")){
+
+$("modal")
+.classList
+.add("hidden");
+
+}
+
+}
+);
+
+
+$("file").addEventListener(
+"change",
+function(e){
+
+if(
+e.target.files &&
+e.target.files[0]
+){
+
+$("scanMsg").textContent=
+"ছবি নেওয়া হয়েছে। AI/OCR সংযোগ করলে প্রেসক্রিপশনের লেখা পড়া যাবে।";
+
+}
+
+}
+);
+
+document.addEventListener("deviceready", async function () {
+
+  try {
+
+    const banner = new admob.BannerAd({
+      adUnitId: "ca-app-pub-9624794362922140/4036927826",
+      position: "bottom"
+    });
+
+    await banner.show();
+
+    console.log("AdMob Banner loaded");
+
+  } catch (error) {
+
+    console.error("AdMob Banner Error:", error);
+
+  }
+
+}, false);
+
+</script>
+
+</body>
+</html>
