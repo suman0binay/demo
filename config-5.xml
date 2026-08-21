@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<widget
+    id="com.sebahealth.app"
+    version="1.0.0"
+    xmlns="http://www.w3.org/ns/widgets"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <name>সেবা হেলথ</name>
+
+    <description>
+        ডাক্তার বুকিং ও লাইভ সিরিয়াল
+    </description>
+
+    <author email="support@sebahealth.app">
+        Seba Health
+    </author>
+
+    <content src="index.html" />
+
+    <plugin name="admob-plus-cordova" spec="2.0.0-alpha.19" />
+
+    <icon src="icon.png" />
+
+    <access origin="*" />
+
+    <allow-navigation href="*" />
+
+    <preference
+        name="Fullscreen"
+        value="false" />
+
+    <preference
+        name="Orientation"
+        value="portrait" />
+
+    <platform name="android">
+
+        <allow-intent href="http://*/*" />
+
+        <allow-intent href="https://*/*" />
+
+    </platform>
+
+</widget>
