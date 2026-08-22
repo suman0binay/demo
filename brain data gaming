@@ -1,0 +1,649 @@
+{
+  "generated_at": 1787439436.3757308,
+  "genome_anchor": "b3ba3ff8ff7d5128443d410f295cdc3b",
+  "person_hash": "e1de8a8c7509bb29f64f",
+  "total_blocks": 43,
+  "brain_databases": [
+    {
+      "name": "OpenNeuro",
+      "org": "Stanford/NIH",
+      "url": "https://openneuro.org",
+      "type": "neuroimaging_eeg",
+      "datasets": 1000,
+      "participants": 40000,
+      "format": "BIDS",
+      "access": "open",
+      "relevance": "EEG/fMRI datasets for BCI classifier training and validation",
+      "chain_role": "light_client \u2014 Merkle proof of dataset versions"
+    },
+    {
+      "name": "PhysioNet",
+      "org": "MIT/NIH",
+      "url": "https://physionet.org",
+      "type": "physiological_signals",
+      "datasets": 21847,
+      "participants": 50000,
+      "format": "WFDB",
+      "access": "open",
+      "relevance": "P300 speller, motor imagery, ALS EEG \u2014 same data as disability twins module",
+      "chain_role": "already connected \u2014 EEG pool for P300 classifier improvement"
+    },
+    {
+      "name": "Human Connectome Project",
+      "org": "NIH",
+      "url": "https://db.humanconnectome.org",
+      "type": "structural_functional_brain",
+      "datasets": 1200,
+      "participants": 1200,
+      "format": "CIFTI_HCP",
+      "access": "registered",
+      "relevance": "High-res fMRI + MEG + EEG \u2014 brain connectivity maps for personalized neural models",
+      "chain_role": "reference atlas for individualised BCI calibration"
+    },
+    {
+      "name": "Allen Brain Atlas",
+      "org": "Allen Institute",
+      "url": "https://brain-map.org",
+      "type": "gene_expression_brain",
+      "datasets": 500,
+      "participants": 0,
+      "format": "ISH_atlas",
+      "access": "open",
+      "relevance": "Gene expression in brain regions \u2014 links BRCA1/SOD1/MECP2 to neural tissue",
+      "chain_role": "genomic-neural linkage \u2014 genome anchor connected to brain atlas"
+    },
+    {
+      "name": "UK Biobank Neuroimaging",
+      "org": "UKRI",
+      "url": "https://biobank.ndph.ox.ac.uk",
+      "type": "population_neuroimaging",
+      "datasets": 100000,
+      "participants": 100000,
+      "format": "NIfTI",
+      "access": "application",
+      "relevance": "100k brain MRI + cognitive tests \u2014 population norms for neural metrics",
+      "chain_role": "population comparison for personal EEG and cognitive baselines"
+    },
+    {
+      "name": "MOABB",
+      "org": "International BCI",
+      "url": "http://moabb.neurotechx.com",
+      "type": "bci_benchmark",
+      "datasets": 25,
+      "participants": 200,
+      "format": "MNE_epochs",
+      "access": "open",
+      "relevance": "Standardised P300, SSVEP, motor imagery benchmarks \u2014 validates BCI classifiers in this chain",
+      "chain_role": "benchmark validation blocks \u2014 classifier accuracy mined at diff=4"
+    },
+    {
+      "name": "BNCI Horizon 2020",
+      "org": "EU Commission",
+      "url": "http://bnci-horizon-2020.eu",
+      "type": "patient_bci_eeg",
+      "datasets": 60,
+      "participants": 400,
+      "format": "EDF",
+      "access": "open",
+      "relevance": "ALS, stroke, SCI patient BCI recordings \u2014 same conditions as disability digital twins",
+      "chain_role": "direct relevance \u2014 patient BCI training data for this system's disability layer"
+    },
+    {
+      "name": "OpenBCI Community",
+      "org": "OpenBCI/Community",
+      "url": "https://github.com/openbci-archive",
+      "type": "raw_eeg_community",
+      "datasets": 500,
+      "participants": 1000,
+      "format": "OpenBCI_CSV",
+      "access": "open",
+      "relevance": "Raw OpenBCI Cyton recordings \u2014 same hardware as this system uses",
+      "chain_role": "already integrated \u2014 pool for cross-calibration and shared classifier improvement"
+    }
+  ],
+  "ai_models": [
+    {
+      "name": "BrainBERT",
+      "arch": "BERT+EEG",
+      "params": "110M",
+      "trained_on": "PhysioNet+OpenNeuro",
+      "task": "EEG signal understanding and classification",
+      "chain_role": "7th LLM in multi-LLM federation \u2014 specifically for neural signal queries"
+    },
+    {
+      "name": "LaBraM",
+      "arch": "Large Brain Model",
+      "params": "369M",
+      "trained_on": "2500h EEG 10 datasets",
+      "task": "Universal EEG foundation model \u2014 zero-shot BCI decoding",
+      "chain_role": "interprets P300/SSVEP blocks without patient-specific calibration"
+    },
+    {
+      "name": "DeWave",
+      "arch": "Transformer+VQ-VAE",
+      "params": "125M",
+      "trained_on": "MOABB+BNCI",
+      "task": "EEG-to-text decoding \u2014 brain signals to natural language",
+      "chain_role": "converts EEG blocks to text for the RAG corpus and chain search"
+    },
+    {
+      "name": "EEGNet",
+      "arch": "Compact CNN",
+      "params": "2.3k",
+      "trained_on": "Universal EEG",
+      "task": "Lightweight real-time BCI classification \u2014 runs on edge devices",
+      "chain_role": "on-device classifier for OpenBCI before mining \u2014 low latency"
+    },
+    {
+      "name": "EEGFormer",
+      "arch": "Vision Transformer",
+      "params": "43M",
+      "trained_on": "Multi-dataset EEG",
+      "task": "EEG epoch classification and event detection",
+      "chain_role": "detects P300, SSVEP, ERN events in real-time stream before mining"
+    },
+    {
+      "name": "BrainWave",
+      "arch": "Temporal Transformer",
+      "params": "220M",
+      "trained_on": "Microsoft private + MOABB",
+      "task": "Neural signal to intent decoding",
+      "chain_role": "high-accuracy BCI decoding for clinical-grade communication blocks"
+    },
+    {
+      "name": "Generative AI for BCI",
+      "arch": "GPT-4o+EEG encoder",
+      "params": "varied",
+      "trained_on": "BCI2000+MNE",
+      "task": "Synthetic EEG generation for data augmentation",
+      "chain_role": "fills temporal gaps in EEG stream (extends gap_filler module)",
+      "source": "Innovation Life 2026 doi:10.59717/j.xinn-life.2026.100198"
+    }
+  ],
+  "bci_hardware": [
+    {
+      "name": "OpenBCI Cyton 8ch",
+      "type": "non_invasive",
+      "channels": 8,
+      "sampling": 250,
+      "status": "ACTIVE \u2014 already in system",
+      "app": "P300 BCI + disability twins + EEG stream",
+      "chain_tier": 2
+    },
+    {
+      "name": "Emotiv EPOC+ 14ch",
+      "type": "non_invasive",
+      "channels": 14,
+      "sampling": 128,
+      "status": "compatible",
+      "app": "Gaming emotion detection + cognitive state",
+      "chain_tier": 2
+    },
+    {
+      "name": "NeuroSky MindWave",
+      "type": "non_invasive_gaming",
+      "channels": 1,
+      "sampling": 512,
+      "status": "compatible",
+      "app": "Single-channel attention/meditation \u2014 consumer gaming",
+      "chain_tier": 1
+    },
+    {
+      "name": "Neurosity Crown",
+      "type": "non_invasive_developer",
+      "channels": 8,
+      "sampling": 256,
+      "status": "compatible",
+      "app": "Developer-focused dry EEG \u2014 no setup time",
+      "chain_tier": 2
+    },
+    {
+      "name": "Kernel Flow",
+      "type": "fnirs",
+      "channels": 52,
+      "sampling": 50,
+      "status": "compatible",
+      "app": "fNIRS hemodynamics \u2014 prefrontal cortex monitoring",
+      "chain_tier": 2
+    },
+    {
+      "name": "Galea (HTC+OpenBCI)",
+      "type": "vr_bci",
+      "channels": 16,
+      "sampling": 250,
+      "status": "compatible",
+      "app": "VR gaming + EEG + EMG + eye tracking combined",
+      "chain_tier": 3
+    },
+    {
+      "name": "Muse 2",
+      "type": "consumer_neurofeedback",
+      "channels": 4,
+      "sampling": 256,
+      "status": "compatible",
+      "app": "Meditation/neurofeedback training",
+      "chain_tier": 1
+    },
+    {
+      "name": "Synchron Stentrode",
+      "type": "semi_invasive",
+      "channels": 16,
+      "sampling": 25000,
+      "status": "FDA_cleared_research",
+      "app": "ALS motor + speech restoration \u2014 endovascular",
+      "chain_tier": 5
+    },
+    {
+      "name": "Neuralink N1",
+      "type": "invasive",
+      "channels": 1024,
+      "sampling": 20000,
+      "status": "clinical_trial",
+      "app": "High-bandwidth motor + speech \u2014 implanted",
+      "chain_tier": 6
+    },
+    {
+      "name": "Paradromics Connexus",
+      "type": "invasive",
+      "channels": 65536,
+      "sampling": 30000,
+      "status": "FDA_IDE_approved",
+      "app": "Speech restoration \u2014 Connect-One trial",
+      "chain_tier": 6
+    },
+    {
+      "name": "BrainGate",
+      "type": "invasive",
+      "channels": 100,
+      "sampling": 30000,
+      "status": "research",
+      "app": "30yr research base \u2014 cursor + speech + robotic arm",
+      "chain_tier": 5
+    },
+    {
+      "name": "Precision Layer7",
+      "type": "semi_invasive",
+      "channels": 1024,
+      "sampling": 30000,
+      "status": "clinical_trial",
+      "app": "Thin-film cortical interface \u2014 minimal scarring",
+      "chain_tier": 5
+    }
+  ],
+  "gaming": [
+    {
+      "name": "BCI gaming accessibility",
+      "type": "accessibility",
+      "platform": "OpenBCI+BCI2000+Unity",
+      "use": "P300 speller \u2192 game commands \u2014 disabled players control games with brain signals",
+      "chain_blocks": "every P300 game command mined at diff=1",
+      "users": [
+        "ALS",
+        "SCI",
+        "locked-in",
+        "non-verbal autism"
+      ]
+    },
+    {
+      "name": "Cognitive state detection",
+      "type": "research",
+      "platform": "Emotiv+Unity+LSL",
+      "use": "Flow state, frustration, mental fatigue, boredom detected from EEG in real-time during gameplay",
+      "chain_blocks": "cognitive_state blocks mined when state changes detected"
+    },
+    {
+      "name": "Adaptive difficulty AI",
+      "type": "gameplay",
+      "platform": "EEGNet+Unreal Engine",
+      "use": "Game difficulty auto-adjusts based on player cognitive load \u2014 higher alpha = relaxed \u2192 increase difficulty",
+      "chain_blocks": "adaptation events mined as personalised learning blocks"
+    },
+    {
+      "name": "Neurofeedback training games",
+      "type": "rehabilitation",
+      "platform": "BrainHQ+Lumosity",
+      "use": "Cognitive training games \u2014 attention, memory, processing speed. Outcomes mined as neuroplasticity blocks",
+      "chain_blocks": "game session outcomes mined at diff=3 with pre/post EEG comparison"
+    },
+    {
+      "name": "eSports neural performance",
+      "type": "performance",
+      "platform": "Galea+custom",
+      "use": "EEG+EMG+eye tracking during competition \u2014 flow state detection, fatigue monitoring, reaction time optimisation",
+      "chain_blocks": "performance state blocks linked to game events"
+    },
+    {
+      "name": "VR stroke rehabilitation",
+      "type": "medical_gaming",
+      "platform": "Meta Quest+Muse",
+      "use": "Gamified stroke rehab \u2014 reaching, grasping, walking. EEG tracks neuroplasticity recovery over sessions",
+      "chain_blocks": "rehabilitation milestone blocks mined at diff=4 with improvement evidence"
+    },
+    {
+      "name": "Neural game design",
+      "type": "research",
+      "platform": "Unity+BrainBERT",
+      "use": "AI analyses EEG during gameplay to design levels that optimise player engagement and cognitive training",
+      "chain_blocks": "design insights mined as validated research blocks"
+    },
+    {
+      "name": "Galea VR+BCI platform",
+      "type": "development",
+      "platform": "HTC Vive+OpenBCI+Tobii",
+      "use": "16ch EEG + EMG + pupillometry + eye tracking in VR \u2014 simultaneous multimodal brain state capture",
+      "chain_blocks": "all modalities streamed and mined simultaneously"
+    }
+  ],
+  "desci": [
+    {
+      "name": "NeuroDAO",
+      "focus": "Decentralised neuroscience funding \u2014 Alzheimer, Parkinson, TBI, neural interfaces",
+      "token": "NEURO",
+      "chain_role": "submit EEG findings, earn NEURO tokens, fund next brain research cohort"
+    },
+    {
+      "name": "PsyDAO",
+      "focus": "Psychedelic and mental health research \u2014 MDMA, psilocybin, ketamine clinical trials",
+      "token": "PSY",
+      "chain_role": "EEG + biomarker findings from psychedelic sessions mined and peer-reviewed"
+    },
+    {
+      "name": "AthenaDAO (brain track)",
+      "focus": "Women's neurological health \u2014 MS, Alzheimer, migraines",
+      "token": "ATHENA",
+      "chain_role": "already connected \u2014 BRCA1 + neural research intersection"
+    },
+    {
+      "name": "VitaDAO (neuro track)",
+      "focus": "Longevity including neurodegeneration",
+      "token": "VITA",
+      "chain_role": "already connected \u2014 ALS SOD1 + BCI survival research"
+    }
+  ],
+  "neuromorphic": [
+    {
+      "name": "Intel Loihi 2",
+      "neurons": "1M",
+      "power_mw": 1,
+      "use": "Ultra-low-power EEG spike processing at edge \u2014 mine blocks from wearable without draining battery"
+    },
+    {
+      "name": "IBM TrueNorth",
+      "neurons": "4M",
+      "power_mw": 70,
+      "use": "Large-scale spiking neural network \u2014 runs BrainBERT-equivalent in spike domain"
+    },
+    {
+      "name": "SpiNNaker2 (Manchester)",
+      "neurons": "5M",
+      "power_mw": 200,
+      "use": "Real-time neural simulation \u2014 connectome-scale modelling for personalised BCI calibration"
+    },
+    {
+      "name": "Tianjic (China)",
+      "neurons": "156k",
+      "power_mw": 5,
+      "use": "Hybrid digital-analogue \u2014 EEG processing + PoW mining on single low-power chip"
+    }
+  ],
+  "chain": [
+    {
+      "index": 1,
+      "hash": "00050bdf9a0ae7a5323a",
+      "diff": 3,
+      "label": "Brain DB: OpenNeuro \u2014 1000 datasets \u00b7 light_client \u2014 Merkle proof of"
+    },
+    {
+      "index": 2,
+      "hash": "0001212499c9adeaacec",
+      "diff": 3,
+      "label": "Brain DB: PhysioNet \u2014 21847 datasets \u00b7 already connected \u2014 EEG pool f"
+    },
+    {
+      "index": 3,
+      "hash": "000ac531d65ad95fb56b",
+      "diff": 3,
+      "label": "Brain DB: Human Connectome Project \u2014 1200 datasets \u00b7 reference atlas for individual"
+    },
+    {
+      "index": 4,
+      "hash": "000b2c763232f5ccbaa7",
+      "diff": 3,
+      "label": "Brain DB: Allen Brain Atlas \u2014 500 datasets \u00b7 genomic-neural linkage \u2014 genom"
+    },
+    {
+      "index": 5,
+      "hash": "000d705fc01921faae97",
+      "diff": 3,
+      "label": "Brain DB: UK Biobank Neuroimaging \u2014 100000 datasets \u00b7 population comparison for pers"
+    },
+    {
+      "index": 6,
+      "hash": "0001926b947b6f12f437",
+      "diff": 3,
+      "label": "Brain DB: MOABB \u2014 25 datasets \u00b7 benchmark validation blocks \u2014 "
+    },
+    {
+      "index": 7,
+      "hash": "00029c52edcc33ef957d",
+      "diff": 3,
+      "label": "Brain DB: BNCI Horizon 2020 \u2014 60 datasets \u00b7 direct relevance \u2014 patient BCI"
+    },
+    {
+      "index": 8,
+      "hash": "00081e6bf6f3864da467",
+      "diff": 3,
+      "label": "Brain DB: OpenBCI Community \u2014 500 datasets \u00b7 already integrated \u2014 pool for "
+    },
+    {
+      "index": 9,
+      "hash": "0005519009ae61898a69",
+      "diff": 3,
+      "label": "AI model: BrainBERT \u2014 7th LLM in multi-LLM federation \u2014 specif"
+    },
+    {
+      "index": 10,
+      "hash": "0002b57423aa85c44b33",
+      "diff": 3,
+      "label": "AI model: LaBraM \u2014 interprets P300/SSVEP blocks without pat"
+    },
+    {
+      "index": 11,
+      "hash": "0000c751e95962e3f03d",
+      "diff": 3,
+      "label": "AI model: DeWave \u2014 converts EEG blocks to text for the RAG "
+    },
+    {
+      "index": 12,
+      "hash": "000eadac78ecc00a12c3",
+      "diff": 3,
+      "label": "AI model: EEGNet \u2014 on-device classifier for OpenBCI before "
+    },
+    {
+      "index": 13,
+      "hash": "000224f143eed7dcb60a",
+      "diff": 3,
+      "label": "AI model: EEGFormer \u2014 detects P300, SSVEP, ERN events in real-"
+    },
+    {
+      "index": 14,
+      "hash": "0007b295bc88c1d4801a",
+      "diff": 3,
+      "label": "AI model: BrainWave \u2014 high-accuracy BCI decoding for clinical-"
+    },
+    {
+      "index": 15,
+      "hash": "000199234377097b10ab",
+      "diff": 3,
+      "label": "AI model: Generative AI for BCI \u2014 fills temporal gaps in EEG stream (exten"
+    },
+    {
+      "index": 16,
+      "hash": "0081905438f5ffb0b15c",
+      "diff": 2,
+      "label": "BCI: OpenBCI Cyton 8ch [non_invasive] tier=2 \u2014 P300 BCI + disability twins + "
+    },
+    {
+      "index": 17,
+      "hash": "005037ee8c9f691fc8b8",
+      "diff": 2,
+      "label": "BCI: Emotiv EPOC+ 14ch [non_invasive] tier=2 \u2014 Gaming emotion detection + cog"
+    },
+    {
+      "index": 18,
+      "hash": "0a3dbc4fd7984b03cee0",
+      "diff": 1,
+      "label": "BCI: NeuroSky MindWave [non_invasive_gaming] tier=1 \u2014 Single-channel attention/medit"
+    },
+    {
+      "index": 19,
+      "hash": "00b396dc52769193e6a5",
+      "diff": 2,
+      "label": "BCI: Neurosity Crown [non_invasive_developer] tier=2 \u2014 Developer-focused dry EEG \u2014 no"
+    },
+    {
+      "index": 20,
+      "hash": "008af94e38cbf3b0dea7",
+      "diff": 2,
+      "label": "BCI: Kernel Flow [fnirs] tier=2 \u2014 fNIRS hemodynamics \u2014 prefronta"
+    },
+    {
+      "index": 21,
+      "hash": "003d20840c35002cead7",
+      "diff": 2,
+      "label": "BCI: Galea (HTC+OpenBCI) [vr_bci] tier=3 \u2014 VR gaming + EEG + EMG + eye tr"
+    },
+    {
+      "index": 22,
+      "hash": "040d1e6552ecbbb6f616",
+      "diff": 1,
+      "label": "BCI: Muse 2 [consumer_neurofeedback] tier=1 \u2014 Meditation/neurofeedback train"
+    },
+    {
+      "index": 23,
+      "hash": "0008aa36577dfc0ed67c",
+      "diff": 3,
+      "label": "BCI: Synchron Stentrode [semi_invasive] tier=5 \u2014 ALS motor + speech restoration"
+    },
+    {
+      "index": 24,
+      "hash": "00002476b723a7e3377b",
+      "diff": 4,
+      "label": "BCI: Neuralink N1 [invasive] tier=6 \u2014 High-bandwidth motor + speech "
+    },
+    {
+      "index": 25,
+      "hash": "000057a2d25170458f0d",
+      "diff": 4,
+      "label": "BCI: Paradromics Connexus [invasive] tier=6 \u2014 Speech restoration \u2014 Connect-O"
+    },
+    {
+      "index": 26,
+      "hash": "000cac3f535f44b4af06",
+      "diff": 3,
+      "label": "BCI: BrainGate [invasive] tier=5 \u2014 30yr research base \u2014 cursor + "
+    },
+    {
+      "index": 27,
+      "hash": "0008b2bcfe9e20fd7ea9",
+      "diff": 3,
+      "label": "BCI: Precision Layer7 [semi_invasive] tier=5 \u2014 Thin-film cortical interface \u2014"
+    },
+    {
+      "index": 28,
+      "hash": "0008d010bcd37ca709f3",
+      "diff": 3,
+      "label": "Gaming: BCI gaming accessibility [accessibility] \u2014 every P300 game command mined at di"
+    },
+    {
+      "index": 29,
+      "hash": "000aefa620a08ef8af86",
+      "diff": 3,
+      "label": "Gaming: Cognitive state detection [research] \u2014 cognitive_state blocks mined when s"
+    },
+    {
+      "index": 30,
+      "hash": "0001c0bdccbbdabca776",
+      "diff": 3,
+      "label": "Gaming: Adaptive difficulty AI [gameplay] \u2014 adaptation events mined as personal"
+    },
+    {
+      "index": 31,
+      "hash": "000b4d8130e79de2d67f",
+      "diff": 3,
+      "label": "Gaming: Neurofeedback training games [rehabilitation] \u2014 game session outcomes mined at diff"
+    },
+    {
+      "index": 32,
+      "hash": "0008fd1294e16a3695b6",
+      "diff": 3,
+      "label": "Gaming: eSports neural performance [performance] \u2014 performance state blocks linked to "
+    },
+    {
+      "index": 33,
+      "hash": "000819a129c79262a4a4",
+      "diff": 3,
+      "label": "Gaming: VR stroke rehabilitation [medical_gaming] \u2014 rehabilitation milestone blocks min"
+    },
+    {
+      "index": 34,
+      "hash": "00033de3aed318d789d8",
+      "diff": 3,
+      "label": "Gaming: Neural game design [research] \u2014 design insights mined as validated "
+    },
+    {
+      "index": 35,
+      "hash": "000b2ef9f221ece436ba",
+      "diff": 3,
+      "label": "Gaming: Galea VR+BCI platform [development] \u2014 all modalities streamed and mined s"
+    },
+    {
+      "index": 36,
+      "hash": "00001527881bc662e677",
+      "diff": 3,
+      "label": "DeSci: NeuroDAO \u2014 submit EEG findings, earn NEURO tokens, "
+    },
+    {
+      "index": 37,
+      "hash": "0001dea8395612de732c",
+      "diff": 3,
+      "label": "DeSci: PsyDAO \u2014 EEG + biomarker findings from psychedeli"
+    },
+    {
+      "index": 38,
+      "hash": "000776f9e2933b84edc7",
+      "diff": 3,
+      "label": "DeSci: AthenaDAO (brain track) \u2014 already connected \u2014 BRCA1 + neural resea"
+    },
+    {
+      "index": 39,
+      "hash": "00004fa8adfb23dc29bd",
+      "diff": 3,
+      "label": "DeSci: VitaDAO (neuro track) \u2014 already connected \u2014 ALS SOD1 + BCI survi"
+    },
+    {
+      "index": 40,
+      "hash": "0043abdf310f413f5d2f",
+      "diff": 2,
+      "label": "Neuromorphic: Intel Loihi 2 \u2014 1M neurons \u00b7 Ultra-low-power EEG spike processin"
+    },
+    {
+      "index": 41,
+      "hash": "00755dad60f9c12f41c0",
+      "diff": 2,
+      "label": "Neuromorphic: IBM TrueNorth \u2014 4M neurons \u00b7 Large-scale spiking neural network "
+    },
+    {
+      "index": 42,
+      "hash": "0014a761abe74a70785a",
+      "diff": 2,
+      "label": "Neuromorphic: SpiNNaker2 (Manchester) \u2014 5M neurons \u00b7 Real-time neural simulation \u2014 conne"
+    },
+    {
+      "index": 43,
+      "hash": "0083a3c48a7272072f6f",
+      "diff": 2,
+      "label": "Neuromorphic: Tianjic (China) \u2014 156k neurons \u00b7 Hybrid digital-analogue \u2014 EEG proce"
+    }
+  ]
+}
