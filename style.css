@@ -1,0 +1,29 @@
+/* Page ko poori screen par center karne ke liye */
+body {
+  margin: 0;
+  height: 100vh; /* Viewport ki full height */
+  display: flex;
+  justify-content: center; /* Horizontally center */
+  align-align-items: center;    /* Vertically center */
+  background-color: #fbfbfb;
+}
+
+/* Parent box styling */
+.parent-box {
+  width: 300px;
+  height: 200px;
+  position: relative;
+  background-color: #14ab5a;
+  border: 2px solid #333;
+}
+
+/* Small child element styling (Center inside parent) */
+.child-box {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ff4757;
+}
