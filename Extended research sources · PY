@@ -1,0 +1,132 @@
+"""
+extended_research_sources.py
+================
+Three more REAL, public, no-login data sources to grow the research
+agent's reach — same honest pattern as research_matcher.py /
+multi_source_research.py / stjude_public_research.py: real APIs,
+real verified responses, no fabricated data.
+
+  - openFDA: drug safety/adverse-event data (FDA's public API)
+  - NIH RePORTER: U.S. federal research funding/grants — genuinely
+    useful for YOUR grant strategy too, since it shows what's already
+    being funded in a space, not just what's published
+  - Europe PMC: broader literature search than PubMed alone —
+    includes preprints and non-US journals PubMed sometimes misses
+
+WHY THESE THREE
+--------------------
+Each covers something the four existing sources (ClinicalTrials.gov,
+PubMed, ClinVar, St. Jude) don't: drug safety signals, funding
+landscape, and literature coverage beyond PubMed's indexing. None of
+this is scanning or discovering — these are documented, intended-for-
+programmatic-use public APIs, the same category as everything already
+in this pipeline.
+
+Usage
+-----
+    from extended_research_sources import search_openfda_drug_events, search_nih_grants, search_europepmc
+
+    events = search_openfda_drug_events("tamoxifen", max_results=5)
+    grants = search_nih_grants("BRCA1 breast cancer", max_results=5)
+    papers = search_europepmc("BRCA1 breast cancer", max_results=5)
+"""
+
+from __future__ import annotations
+import json
+import urllib.request
+import urllib.parse
+
+
+def search_openfda_drug_events(drug_name: str, max_results: int = 5) -> list[dict]:
+    """Real FDA adverse-event reports for a drug. Aggregate/report-level data,
+    not tied to any individual patient (openFDA de-identifies before publishing)."""
+    params = {
+        "search": f'patient.drug.medicinalproduct:"{drug_name}"',
+        "limit": str(max_results),
+    }
+    url = f"https://api.fda.gov/drug/event.json?{urllib.parse.urlencode(params)}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+        results = []
+        for event in data.get("results", []):
+            reactions = [r.get("reactionmeddrapt") for r in event.get("patient", {}).get("reaction", [])]
+            results.append({
+                "report_id": event.get("safetyreportid"),
+                "reactions": reactions,
+                "serious": event.get("serious"),
+                "receive_date": event.get("receivedate"),
+            })
+        return results
+    except Exception as e:
+        return [{"error": f"openFDA request failed: {e}"}]
+
+
+def search_nih_grants(query: str, max_results: int = 5) -> list[dict]:
+    """Real NIH RePORTER search — active/past federal grants matching your query.
+    Useful for understanding the funding landscape, including for your own
+    grant strategy (who's funded, at what institutions, how recently)."""
+    body = json.dumps({
+        "criteria": {
+            "advanced_text_search": {
+                "operator": "and", "search_field": "projecttitle,terms", "search_text": query,
+            }
+        },
+        "limit": max_results,
+        "sort_field": "fiscal_year",
+        "sort_order": "desc",
+    }).encode()
+    req = urllib.request.Request(
+        "https://api.reporter.nih.gov/v2/projects/search",
+        data=body, headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+        return [{
+            "project_num": r.get("project_num"),
+            "title": r.get("project_title"),
+            "org": r.get("organization", {}).get("org_name"),
+            "fiscal_year": r.get("fiscal_year"),
+            "total_matching": data.get("meta", {}).get("total"),
+        } for r in data.get("results", [])]
+    except Exception as e:
+        return [{"error": f"NIH RePORTER request failed: {e}"}]
+
+
+def search_europepmc(query: str, max_results: int = 5) -> list[dict]:
+    """Real Europe PMC search — broader than PubMed alone (includes preprints,
+    non-US journals)."""
+    params = {"query": query, "format": "json", "pageSize": str(max_results)}
+    url = f"https://www.ebi.ac.uk/europepmc/webservices/rest/search?{urllib.parse.urlencode(params)}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+        results = []
+        for r in data.get("resultList", {}).get("result", []):
+            results.append({
+                "id": r.get("id"),
+                "title": r.get("title"),
+                "source": r.get("source"),
+                "pub_year": r.get("pubYear"),
+                "is_preprint": r.get("pubType") == "preprint",
+                "url": f"https://europepmc.org/article/{r.get('source')}/{r.get('id')}",
+                "total_matching": data.get("hitCount"),
+            })
+        return results
+    except Exception as e:
+        return [{"error": f"Europe PMC request failed: {e}"}]
+
+
+if __name__ == "__main__":
+    print("=== Real openFDA: tamoxifen adverse events ===")
+    for e in search_openfda_drug_events("tamoxifen", max_results=3):
+        print(f"  report {e.get('report_id')}: {e.get('reactions')}")
+
+    print("\n=== Real NIH RePORTER: BRCA1 breast cancer grants ===")
+    for g in search_nih_grants("BRCA1 breast cancer", max_results=3):
+        print(f"  {g.get('title')}  ({g.get('fiscal_year')}, {g.get('org')})")
+
+    print("\n=== Real Europe PMC: BRCA1 breast cancer ===")
+    for p in search_europepmc("BRCA1 breast cancer", max_results=3):
+        print(f"  {p.get('title')}  ({p.get('pub_year')}, preprint={p.get('is_preprint')})")

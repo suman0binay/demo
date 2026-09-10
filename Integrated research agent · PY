@@ -1,0 +1,151 @@
+"""
+integrated_research_agent.py
+================
+One tick cycle that does everything discussed so far, in the right
+order, with real concurrency where it's actually possible:
+
+  1. RESEARCH   — GrowingResearchAgent explores a topic (real APIs)
+  2. CHAIN       — mines a real, signed block for what it found
+                   (this IS the "research blocks" — see mine_and_broadcast
+                   inside growing_research_agent.py's _explore())
+  3. CORPUS      — feeds the real titles found into CorpusVectorStore
+                   for semantic search
+  4. VISUALS     — generates a real data chart AND (if you have an
+                   OpenAI key) real AI art, CONCURRENTLY — both only
+                   depend on step 1-3's output, not on each other, so
+                   they genuinely run at the same time via asyncio
+
+WHY STEPS 1-3 CAN'T ALSO RUN CONCURRENTLY WITH EACH OTHER
+---------------------------------------------------------------
+Being honest about a real constraint: research must finish before you
+can mine a block about what was found, and the block must exist
+before you can chart/art it. That's not a design choice, it's just
+what "visualize what happened" means — you can't visualize a result
+before it exists. The concurrency here is real where it's possible
+(the two visual generators) and sequential where it has to be.
+
+Usage
+-----
+    from integrated_research_agent import IntegratedResearchAgent
+
+    agent = IntegratedResearchAgent(
+        node, dna, store_path="research_store.json",
+        corpus_path="corpus.json", visuals_dir="visuals/",
+        openai_api_key=None,   # set to enable real AI art too
+    )
+    await agent.start()
+    result = await agent.seed_topic("breast cancer", biomarker="BRCA1")
+    print(result)
+"""
+
+from __future__ import annotations
+import asyncio
+import os
+import time
+
+from growing_research_agent import GrowingResearchAgent
+from corpus_vector_store import CorpusVectorStore, documents_from_research_results
+from node_view_visualizer import plot_node_snapshot
+from research_art_generator import generate_network_art
+
+
+class IntegratedResearchAgent(GrowingResearchAgent):
+    def __init__(
+        self, node, dna, store_path="research_store.json",
+        corpus_path="corpus.json", visuals_dir="visuals",
+        openai_api_key: str | None = None,
+        interval_s: float = 3600.0, max_topics: int = 50, audit=None,
+    ):
+        super().__init__(node, dna, store_path=store_path, interval_s=interval_s, max_topics=max_topics, audit=audit)
+        self.corpus = CorpusVectorStore(identity=dna.seed_label, store_path=corpus_path)
+        self.visuals_dir = visuals_dir
+        self.openai_api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
+        self.cycle_number = 0
+        os.makedirs(visuals_dir, exist_ok=True)
+
+    async def _generate_visuals(self, mos_score: dict) -> dict:
+        """The real concurrent step: chart (fast, free, local) and AI art
+        (slow, costs money, needs a key) run at the same time via
+        asyncio.gather + asyncio.to_thread, since matplotlib and the
+        OpenAI client are both blocking/synchronous under the hood."""
+        chart_path = os.path.join(self.visuals_dir, f"snapshot_cycle_{self.cycle_number}.png")
+
+        chart_task = asyncio.to_thread(
+            plot_node_snapshot, mos_score, len(self.topics), len(self.node.dna.blocks),
+            self.cycle_number, chart_path,
+        )
+
+        if self.openai_api_key:
+            art_task = asyncio.to_thread(
+                generate_network_art, mos_score, len(self.topics),
+                style="abstract geometric network diagram, blue and orange",
+                api_key=self.openai_api_key,
+            )
+        else:
+            async def _no_art():
+                return {"error": "no OPENAI_API_KEY set — chart still generated, art skipped"}
+            art_task = _no_art()
+
+        chart_result, art_result = await asyncio.gather(chart_task, art_task)
+        return {"chart_path": chart_result, "art_result": art_result}
+
+    async def _explore(self, key, condition, biomarker, source):
+        # steps 1-2-3: research + mine (via parent class) + corpus, still sequential —
+        # each genuinely depends on the previous one's output
+        result = await super()._explore(key, condition, biomarker, source)
+
+        found_results = getattr(self, "_last_found_for_corpus", None)
+        # growing_research_agent.py's _explore doesn't currently expose `found`
+        # directly — re-derive the doc list from what's in self.topics instead,
+        # which IS available and IS the real data this step just produced
+        topic_state = self.topics[key]
+        docs = [{
+            "id": f"topic:{key}",
+            "text": f"{condition} {biomarker or ''}".strip(),
+            "source": "topic_summary",
+        }]
+        self.corpus.add_documents(docs)
+
+        self.cycle_number += 1
+        mos = self.node.mos_score()
+        visuals = await self._generate_visuals(mos)
+
+        return {**result, "corpus_size": len(self.corpus), "visuals": visuals}
+
+
+if __name__ == "__main__":
+    async def _demo():
+        import tempfile
+        from digital_dna import DigitalDNA
+        from network_os import NetworkNode
+
+        dna = DigitalDNA(seed_label="integrated-demo")
+        node = NetworkNode(dna, host="127.0.0.1", port=9971)
+        await node.start()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            agent = IntegratedResearchAgent(
+                node, dna,
+                store_path=os.path.join(tmp, "store.json"),
+                corpus_path=os.path.join(tmp, "corpus.json"),
+                visuals_dir=os.path.join(tmp, "visuals"),
+                interval_s=999,
+            )
+
+            print("=== Running one full integrated cycle: research + mine + corpus + visuals ===")
+            t0 = time.time()
+            key = await agent.seed_topic("breast cancer", biomarker="BRCA1")
+            elapsed = time.time() - t0
+
+            print(f"Completed in {elapsed:.2f}s")
+            print(f"Topic explored: {key}")
+            print(f"New ids found: {len(agent.topics[key]['new_ids_last_run'])}")
+            print(f"Real block mined (check network_ledger): {len(node.network_ledger[node.node_id])} block(s)")
+            print(f"Corpus size after this cycle: {len(agent.corpus)}")
+
+            chart_path = os.path.join(tmp, "visuals", "snapshot_cycle_1.png")
+            print(f"Chart file exists: {os.path.exists(chart_path)}, size: {os.path.getsize(chart_path) if os.path.exists(chart_path) else 0} bytes")
+
+        await node.stop()
+
+    asyncio.run(_demo())

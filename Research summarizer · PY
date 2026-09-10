@@ -1,0 +1,174 @@
+"""
+research_summarizer.py
+================
+Uses a real LLM (Claude, via the Anthropic API) to summarize research
+data that GrowingResearchAgent already found — real trials, real
+papers, real variants, real St. Jude records. This does NOT generate
+new synthetic trials/papers/variants. See the module docstring below
+for why that boundary matters and stays firm.
+
+WHAT THIS DOES
+------------------
+Takes the REAL records already in a topic's `results` (from
+growing_research_agent.py's query_cache, if you set
+store_query_text=True) and asks Claude to write a plain-language
+summary of what was actually found — same task a human reading
+through the titles would do, just faster. The model is given ONLY
+the real titles/IDs/statuses already retrieved and explicitly
+instructed not to state anything beyond them.
+
+WHAT THIS DELIBERATELY DOES NOT DO
+--------------------------------------
+It does not ask the model to invent additional trials, papers, or
+variants to "fill out" the dataset. If you're tempted to extend this
+file to do that: don't — every record elsewhere in this pipeline is
+independently verifiable (a real NCT/PMID/ClinVar ID you can check),
+and mixing in fabricated entries — even clearly labeled ones — breaks
+that property. A chain block only stores a hash, not a persistent
+"this one was fake" flag, so the label is exactly the kind of thing
+that gets lost across a restart or a handoff. Given this project is
+headed toward grants and press, one fabricated-looking trial
+surfacing later would cost far more credibility than any amount of
+synthetic padding could ever add.
+
+THE OUTPUT IS LABELED AND SEPARATE, ALWAYS
+-----------------------------------------------
+summarize_findings() returns a dict with an explicit "ai_interpretation"
+field and a disclaimer string. If you mine it into the chain, use
+source="ai_interpretation" (already added to digital_dna.py's
+ALLOWED_SOURCES) — never the same source as the primary records, so
+the two are distinguishable in the network_ledger by source alone,
+not just by a label inside the payload that could get dropped.
+
+SETUP
+--------
+Needs your own Anthropic API key (this makes real, billed API calls
+— nothing here uses free/shared access):
+
+    pip install anthropic
+    export ANTHROPIC_API_KEY=sk-ant-...    (or pass api_key= directly)
+
+Usage
+-----
+    from research_summarizer import summarize_findings
+
+    result = summarize_findings(
+        condition="breast cancer", biomarker="BRCA1",
+        trials=cached["results"]["trials"],
+        articles=cached["results"]["articles"],
+        variants=cached["results"]["variants"],
+    )
+    print(result["ai_interpretation"])
+    print(result["disclaimer"])
+"""
+
+from __future__ import annotations
+import os
+
+try:
+    import anthropic
+except ImportError:
+    anthropic = None
+
+
+DISCLAIMER = (
+    "This is an AI-generated interpretation of the real records listed above — "
+    "not a new source, not verified independently, and not a substitute for "
+    "reading the primary trials/papers/variants yourself. Every ID it references "
+    "was already found by the research agent; the model was not asked to and "
+    "should not have invented anything beyond them."
+)
+
+
+def _build_prompt(condition: str, biomarker: str | None, trials, articles, variants, stjude_papers=None, stjude_datasets=None) -> str:
+    lines = [
+        f"Here is REAL data already retrieved for condition='{condition}'"
+        + (f", biomarker='{biomarker}'" if biomarker else "") + ".",
+        "Summarize ONLY what is listed below, in plain language, for someone "
+        "trying to quickly understand the current research landscape. "
+        "Do not state or imply anything about trials, papers, or variants "
+        "not explicitly listed here. If a category is empty, say so plainly "
+        "rather than filling it in.",
+        "",
+        f"TRIALS ({len(trials)}):",
+    ]
+    for t in trials[:15]:
+        lines.append(f"  - {t.get('title')} [{t.get('nct_id')}] status={t.get('status')}")
+
+    lines.append(f"\nARTICLES ({len(articles)}):")
+    for a in articles[:15]:
+        lines.append(f"  - {a.get('title')} [PMID:{a.get('pmid')}] ({a.get('pub_date')})")
+
+    lines.append(f"\nVARIANTS ({len(variants)}):")
+    for v in variants[:15]:
+        if "clinvar_id" in v:
+            lines.append(f"  - ClinVar ID {v['clinvar_id']}")
+
+    if stjude_papers:
+        lines.append(f"\nST. JUDE-AFFILIATED PAPERS ({len(stjude_papers)}):")
+        for p in stjude_papers[:10]:
+            lines.append(f"  - {p.get('title')} [PMID:{p.get('pmid')}]")
+
+    if stjude_datasets:
+        lines.append(f"\nST. JUDE-CONNECTED PUBLIC DATASETS ({len(stjude_datasets)}):")
+        for d in stjude_datasets[:10]:
+            if "geo_id" in d:
+                lines.append(f"  - GEO dataset {d['geo_id']}")
+
+    return "\n".join(lines)
+
+
+def summarize_findings(
+    condition: str, biomarker: str | None = None,
+    trials=None, articles=None, variants=None,
+    stjude_papers=None, stjude_datasets=None,
+    api_key: str | None = None, model: str = "claude-sonnet-4-5",
+) -> dict:
+    if anthropic is None:
+        return {"error": "anthropic package not installed — run: pip install anthropic"}
+
+    key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        return {"error": "No API key — set ANTHROPIC_API_KEY or pass api_key= explicitly"}
+
+    trials = trials or []
+    articles = articles or []
+    variants = variants or []
+
+    prompt = _build_prompt(condition, biomarker, trials, articles, variants, stjude_papers, stjude_datasets)
+
+    client = anthropic.Anthropic(api_key=key)
+    try:
+        response = client.messages.create(
+            model=model,
+            max_tokens=600,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        summary_text = "".join(block.text for block in response.content if block.type == "text")
+    except Exception as e:
+        return {"error": f"Anthropic API call failed: {e}"}
+
+    return {
+        "condition": condition,
+        "biomarker": biomarker,
+        "ai_interpretation": summary_text,
+        "disclaimer": DISCLAIMER,
+        "source_counts": {
+            "trials": len(trials), "articles": len(articles), "variants": len(variants),
+            "stjude_papers": len(stjude_papers or []), "stjude_datasets": len(stjude_datasets or []),
+        },
+    }
+
+
+if __name__ == "__main__":
+    # structural test with fake stand-in records — proves the prompt/parsing
+    # logic works WITHOUT making a real (billed) API call or needing a key.
+    # Real usage calls summarize_findings() with your actual found data.
+    fake_trials = [{"title": "Example Trial Title", "nct_id": "NCT00000000", "status": "RECRUITING"}]
+    fake_articles = [{"title": "Example Paper Title", "pmid": "00000000", "pub_date": "2026"}]
+    prompt = _build_prompt("breast cancer", "BRCA1", fake_trials, fake_articles, [])
+    print("=== Prompt structure (this is what would be sent to Claude) ===")
+    print(prompt)
+    print("\n=== To run for real ===")
+    print("Set ANTHROPIC_API_KEY, then call summarize_findings() with your actual")
+    print("cached results from growing_research_agent.py's query_cache.")
